@@ -1,4 +1,4 @@
-<phpunit colors="true" strict="true" backupGlobals="false" bootstrap="vendor/autoload.php">
+<phpunit colors="true" strict="false" backupGlobals="false" timeoutForSmallTests="1" timeoutForMediumTests="5" timeoutForLargeTests="10"  bootstrap="vendor/autoload.php">
     <testsuites>
         <testsuite name="All">
             <directory>tests</directory>
