@@ -10,6 +10,7 @@ use League\OAuth2\Client\Provider\AbstractProvider;
 class Vkontakte extends AbstractProvider
 {
     public $scopes = [];
+    public $uidKey = 'user_id';
     public $responseType = 'json';
 
     public function urlAuthorize()
