@@ -15,9 +15,9 @@ composer require j4k/oauth2-vkontakte
 ## Usage
 
 ```php
-$provider = new Aego\OAuth2\Client\Provider\Vkontakte([
-    'clientId'  =>  'b80bb7740288fda1f201890375a60c8f',
-    'clientSecret'  =>  'f23ccd066f8236c6f97a2a62d3f9f9f5',
+$provider = new J4k\OAuth2\Client\Provider\Vkontakte([
+    'clientId' => '1234567',
+    'clientSecret' => 's0meRe4lLySEcRetC0De',
     'redirectUri' => 'https://example.org/oauth-endpoint',
 ]);
 ```
