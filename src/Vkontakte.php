@@ -100,10 +100,10 @@ class Vkontakte extends AbstractProvider
         $accessToken = $grant->handleResponse($result);
 
         // Add email from response
-		if (!empty($result['email'])) {
+	if (!empty($result['email'])) {
             $accessToken->email = $result['email'];
         }
-		return $accessToken;
+	return $accessToken;
     }
 
     public function urlUserDetails(AccessToken $token)
