@@ -68,7 +68,7 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
 
     public function testScopes()
     {
-        $this->assertEquals([], $this->provider->getScopes());
+        $this->assertEquals(['email'], $this->provider->getScopes());
     }
 
     public function testUserData()
