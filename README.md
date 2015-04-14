@@ -21,3 +21,7 @@ $provider = new J4k\OAuth2\Client\Provider\Vkontakte([
     'redirectUri' => 'https://example.org/oauth-endpoint',
 ]);
 ```
+
+## Contributions
+
+Contributions are very welcome. Please submit a PR
