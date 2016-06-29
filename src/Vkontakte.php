@@ -2,10 +2,12 @@
 
 namespace J4k\OAuth2\Client\Provider;
 
-use League\OAuth2\Client\Entity\User;
-use League\OAuth2\Client\Token\AccessToken;
+use GuzzleHttp\Exception\BadResponseException;
+use League\OAuth2\Client\Grant;
 use League\OAuth2\Client\Provider\AbstractProvider;
-
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
+use Psr\Http\Message\ResponseInterface;
 
 class Vkontakte extends AbstractProvider
 {
@@ -13,17 +15,15 @@ class Vkontakte extends AbstractProvider
     public $uidKey = 'user_id';
     public $responseType = 'json';
 
-    public function urlAuthorize()
+    public function getBaseAuthorizationUrl()
     {
         return 'https://oauth.vk.com/authorize';
     }
-
-    public function urlAccessToken()
+    public function getBaseAccessTokenUrl(array $params)
     {
         return 'https://oauth.vk.com/access_token';
     }
-    
-    public function getAccessToken($grant = 'authorization_code', $params = [])
+    public function getAccessToken($grant = 'authorization_code', array $params = [])
     {
         if (is_string($grant)) {
             // PascalCase the grant. E.g: 'authorization_code' becomes 'AuthorizationCode'
@@ -33,7 +33,7 @@ class Vkontakte extends AbstractProvider
                 throw new \InvalidArgumentException('Unknown grant "'.$grant.'"');
             }
             $grant = new $grant();
-        } elseif (! $grant instanceof GrantInterface) {
+        } elseif (! $grant instanceof Grant\AbstractGrant) {
             $message = get_class($grant).' is not an instance of League\OAuth2\Client\Grant\GrantInterface';
             throw new \InvalidArgumentException($message);
         }
@@ -45,23 +45,23 @@ class Vkontakte extends AbstractProvider
             'grant_type'    => $grant,
         ];
 
-        $requestParams = $grant->prepRequestParams($defaultParams, $params);
+        $requestParams = $grant->prepareRequestParameters($defaultParams, $params);
 
         try {
-            switch (strtoupper($this->method)) {
+            switch (strtoupper($this->getAccessTokenMethod())) {
                 case 'GET':
                     // @codeCoverageIgnoreStart
                     // No providers included with this library use get but 3rd parties may
                     $client = $this->getHttpClient();
-                    $client->setBaseUrl($this->urlAccessToken() . '?' . $this->httpBuildQuery($requestParams, '', '&'));
-                    $request = $client->get(null, null, $requestParams)->send();
+                    $getUrl = $this->getAccessTokenUrl($requestParams);
+                    $request = $client->request('GET', $getUrl, $requestParams);
                     $response = $request->getBody();
                     break;
                     // @codeCoverageIgnoreEnd
                 case 'POST':
                     $client = $this->getHttpClient();
-                    $client->setBaseUrl($this->urlAccessToken());
-                    $request = $client->post(null, null, $requestParams)->send();
+                    $postUrl = $this->getAccessTokenUrl($requestParams);
+                    $request = $client->request('POST', $postUrl, $requestParams);
                     $response = $request->getBody();
                     break;
                 // @codeCoverageIgnoreStart
@@ -91,13 +91,13 @@ class Vkontakte extends AbstractProvider
 
         if (isset($result['error']) && ! empty($result['error'])) {
             // @codeCoverageIgnoreStart
-            throw new IDPException($result);
+            throw new IdentityProviderException($result['error_description'], $response->getStatusCode(), $responseBody);
             // @codeCoverageIgnoreEnd
         }
 
-        $result = $this->prepareAccessTokenResult($result);
+        $result = $this->prepareAccessTokenResponse($result);
 
-        $accessToken = $grant->handleResponse($result);
+        $accessToken = $grant->prepareRequestParameters($result, []);
 
         // Add email from response
         if (!empty($result['email'])) {
@@ -105,8 +105,7 @@ class Vkontakte extends AbstractProvider
         }
         return $accessToken;
     }
-
-    public function urlUserDetails(AccessToken $token)
+    public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
         $fields = ['email',
             'nickname',
@@ -139,7 +138,7 @@ class Vkontakte extends AbstractProvider
             .implode(",", $fields)."&access_token={$token}";
     }
 
-    public function userDetails($response, AccessToken $token)
+    protected function createResourceOwner(array $response, AccessToken $token)
     {
         $response = $response->response[0];
 
@@ -170,12 +169,10 @@ class Vkontakte extends AbstractProvider
 
         return $response->uid;
     }
-
     public function userEmail($response, AccessToken $token)
     {
         return (isset($token->email)) ? $token->email : null;
     }
-
     public function userScreenName($response, AccessToken $token)
     {
         $response = $response->response[0];
