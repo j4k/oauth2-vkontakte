@@ -71,13 +71,14 @@ class Vkontakte extends AbstractProvider
             }
         } catch (BadResponseException $e) {
             // @codeCoverageIgnoreStart
-            $response = $e->getResponse()->getBody();
+            $response = $e->getResponse();
             // @codeCoverageIgnoreEnd
         }
+        $responseBody = $response->getBody()->getContents();
 
         switch ($this->responseType) {
             case 'json':
-                $result = json_decode($response, true);
+                $result = json_decode($responseBody, true);
 
                 if (JSON_ERROR_NONE !== json_last_error()) {
                     $result = [];
@@ -85,7 +86,7 @@ class Vkontakte extends AbstractProvider
 
                 break;
             case 'string':
-                parse_str($response, $result);
+                parse_str($responseBody, $result);
                 break;
         }
 
