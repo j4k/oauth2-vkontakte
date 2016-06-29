@@ -141,27 +141,12 @@ class Vkontakte extends AbstractProvider
 
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        $response = $response->response[0];
+        $response                = $response->response[0];
+        $response['email']       = property_exists($token, 'email') ? $token->email : null;
+        $response['location']    = property_exists($response, 'country') ? $response->country : null;
+        $response['description'] = property_exists($response, 'status') ? $response->status : null;
 
-        $user = new User();
-
-        $email = (isset($token->email)) ? $token->email : null;
-        $location = (isset($response->country)) ? $response->country : null;
-        $description = (isset($response->status)) ? $response->status : null;
-
-        $user->exchangeArray([
-            'uid' => $response->uid,
-            'nickname' => $response->nickname,
-            'name' => $response->screen_name,
-            'firstname' => $response->first_name,
-            'lastname' => $response->last_name,
-            'email' => $email,
-            'location' => $location,
-            'description' => $description,
-            'imageUrl' => $response->photo_200_orig,
-        ]);
-
-        return $user;
+        return new User($response, $token->uid);
     }
 
     public function userUid($response, AccessToken $token)
