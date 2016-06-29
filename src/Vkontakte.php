@@ -179,4 +179,7 @@ class Vkontakte extends AbstractProvider
 
         return [$response->first_name, $response->last_name];
     }
+
+    protected function getDefaultScopes() { return $this->scopes; }
+    protected function checkResponse(ResponseInterface $response, $data) { parent::checkResponse($response, $data); }
 }
