@@ -2,8 +2,6 @@
 
 namespace J4k\OAuth2\Client\Provider;
 
-use GuzzleHttp\Exception\BadResponseException;
-use League\OAuth2\Client\Grant;
 use League\OAuth2\Client\Provider\AbstractProvider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use League\OAuth2\Client\Token\AccessToken;
@@ -175,81 +173,4 @@ class Vkontakte extends AbstractProvider
         return new User($response, $response['id']);
     }
 
-    // ========== Helpers ==========
-
-    public function getAccessToken($grant = 'authorization_code', array $params = [])
-    {
-        if (is_string($grant)) {
-            // PascalCase the grant. E.g: 'authorization_code' becomes 'AuthorizationCode'
-            $className = str_replace(' ', '', ucwords(str_replace(['-', '_'], ' ', $grant)));
-            $grant = 'League\\OAuth2\\Client\\Grant\\'.$className;
-            if (! class_exists($grant)) {
-                throw new \InvalidArgumentException('Unknown grant "'.$grant.'"');
-            }
-            $grant = new $grant();
-        } elseif (! $grant instanceof Grant\AbstractGrant) {
-            $message = get_class($grant).' is not an instance of League\OAuth2\Client\Grant\GrantInterface';
-            throw new \InvalidArgumentException($message);
-        }
-
-        $defaultParams = [
-            'client_id'     => $this->clientId,
-            'client_secret' => $this->clientSecret,
-            'redirect_uri'  => $this->redirectUri,
-            'grant_type'    => $grant,
-        ];
-
-        $requestParams = $grant->prepareRequestParameters($defaultParams, $params);
-
-        try {
-            switch (strtoupper($this->getAccessTokenMethod())) {
-                case 'GET':
-                    // @codeCoverageIgnoreStart
-                    // No providers included with this library use get but 3rd parties may
-                    $client = $this->getHttpClient();
-                    $getUrl = $this->getAccessTokenUrl($requestParams);
-                    $request = $client->request('GET', $getUrl, $requestParams);
-                    $response = $request->getBody();
-                    break;
-                    // @codeCoverageIgnoreEnd
-                case 'POST':
-                    $client = $this->getHttpClient();
-                    $postUrl = $this->getAccessTokenUrl($requestParams);
-                    $request = $client->request('POST', $postUrl, $requestParams);
-                    $response = $request->getBody();
-                    break;
-                // @codeCoverageIgnoreStart
-                default:
-                    throw new \InvalidArgumentException('Neither GET nor POST is specified for request');
-                // @codeCoverageIgnoreEnd
-            }
-        } catch (BadResponseException $e) {
-            // @codeCoverageIgnoreStart
-            $response = $e->getResponse();
-            // @codeCoverageIgnoreEnd
-        }
-        $responseBody = $response->getBody()->getContents();
-
-        $result = json_decode($responseBody, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            $result = [];
-        }
-
-        if (isset($result['error']) && ! empty($result['error'])) {
-            // @codeCoverageIgnoreStart
-            throw new IdentityProviderException($result['error_description'], $response->getStatusCode(), $responseBody);
-            // @codeCoverageIgnoreEnd
-        }
-
-        $result = $this->prepareAccessTokenResponse($result);
-
-        $accessToken = $grant->prepareRequestParameters($result, []);
-
-        // Add email from response
-        if (!empty($result['email'])) {
-            $accessToken->email = $result['email'];
-        }
-        return $accessToken;
-    }
 }
