@@ -223,5 +223,31 @@ class Vkontakte extends AbstractProvider
     {
         return $this->scopes;
     }
-    protected function checkResponse(ResponseInterface $response, $data) { parent::checkResponse($response, $data); }
+    protected function checkResponse(ResponseInterface $response, $data)
+    {
+        // Metadata info
+        $contentType = $response->getHeader('Content-Type');
+        /** @noinspection PhpPassByRefInspection */
+        /** @noinspection UnnecessaryParenthesesInspection */
+        $contentType = reset((explode(';', reset($contentType))));
+        // Response info
+        $responseCode    = $response->getStatusCode();
+        $responseMessage = $response->getReasonPhrase();
+        // Data info
+        $error            = !empty($data['error']) ? $data['error'] : null;
+        $errorCode        = !empty($error['error_code']) ? $error['error_code'] : $responseCode;
+        $errorDescription = !empty($data['error_description']) ? $data['error_description'] : null;
+        $errorMessage     = !empty($error['error_msg']) ? $error['error_msg'] : $errorDescription;
+        $message          = $errorMessage ?: $responseMessage;
+
+        // Request/meta validation
+        if (399 < $responseCode)
+            throw new IdentityProviderException($message, $responseCode, $data);
+
+        // Content validation
+        if ('application/json' != $contentType)
+            throw new IdentityProviderException($message, $responseCode, $data);
+        if ($error)
+            throw new IdentityProviderException($errorMessage, $errorCode, $data);
+    }
 }
