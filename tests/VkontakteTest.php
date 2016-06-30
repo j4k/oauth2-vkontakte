@@ -2,12 +2,11 @@
 
 namespace J4k\OAuth2\Client\Test\Provider;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
-use League\OAuth2\Client\Token\AccessToken;
+use J4k\OAuth2\Client\Provider\User;
+use J4k\OAuth2\Client\Provider\Vkontakte as Provider;
+use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Mockery as m;
-use \J4k\OAuth2\Client\Provider\Vkontakte as Provider;
-use \J4k\OAuth2\Client\Provider\User;
 
 class VkontakteTest extends \PHPUnit_Framework_TestCase
 {
@@ -15,6 +14,7 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
      * @type Provider
      */
     protected $provider;
+    protected $defaultScopes = ['email', 'friends', 'offline'];
 
     protected function setUp()
     {
@@ -24,11 +24,154 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
             'redirectUri' => 'none',
         ]);
     }
-
-    public function tearDown()
+    protected function tearDown()
     {
         m::close();
         parent::tearDown();
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return Provider
+     */
+    protected function getMockProvider(array $options = [])
+    {
+        return new Provider(array_merge([
+            'urlAuthorize'            => 'http://example.com/authorize',
+            'urlAccessToken'          => 'http://example.com/token',
+            'urlResourceOwnerDetails' => 'http://example.com/user',
+        ], $options));
+    }
+    /**
+     * @return string JSON
+     */
+    protected function getMockAccessToken()
+    {
+        return json_encode([
+            'access_token'  => 'mock_access_token',
+            'expires'       => 0,
+            'refresh_token' => 'mock_refresh_token',
+            'uid'           => 42,
+            'email'         => 'mock_user@example.com',
+        ]);
+    }
+    /**
+     * @return string JSON
+     */
+    protected function getMockOwner()
+    {
+        return json_encode([
+            'response' => [
+                [
+                    'uid'            => 12345,
+                    'bdate'          => '12.07.1980',
+                    'city'           => [
+                        'id'    => 42,
+                        'title' => 'mock_city_title',
+                    ],
+                    'country'        => [
+                        'id'    => 421,
+                        'title' => 'UK',
+                    ],
+                    'domain'         => 'id12345',
+                    'first_name'     => 'mock_first_name',
+                    'friend_status'  => 3,
+                    'has_photo'      => 1,
+                    'home_town'      => 'mock_home_town',
+                    'is_friend'      => 1,
+                    'last_name'      => 'mock_last_name',
+                    'maiden_name'    => 'mock_maiden_name',
+                    'nickname'       => 'mock_nickname',
+                    'photo_max'      => 'http::/example.com/mock/image/url.jpg?with=parameters&and=square',
+                    'photo_max_orig' => 'http::/example.com/mock/image/url.jpg?with=parameters&and=max',
+                    'screen_name'    => 'mock_screen_name',
+                    'sex'            => 2,
+                ],
+            ],
+        ]);
+    }
+    /**
+     * @return string JSON
+     */
+    protected function getMockUsers()
+    {
+        return json_encode([
+            'response' => [
+                [
+                    'uid'            => 12345,
+                    'bdate'          => '12.07.1980',
+                    'city'           => [
+                        'id'    => 42,
+                        'title' => 'mock_city_title',
+                    ],
+                    'country'        => [
+                        'id'    => 421,
+                        'title' => 'UK',
+                    ],
+                    'domain'         => 'id12345',
+                    'first_name'     => 'mock_first_name',
+                    'friend_status'  => 3,
+                    'has_photo'      => 1,
+                    'home_town'      => 'mock_home_town',
+                    'is_friend'      => 1,
+                    'last_name'      => 'mock_last_name',
+                    'maiden_name'    => 'mock_maiden_name',
+                    'nickname'       => 'mock_nickname',
+                    'photo_max'      => 'http::/example.com/mock/image/url.jpg?with=parameters&and=square',
+                    'photo_max_orig' => 'http::/example.com/mock/image/url.jpg?with=parameters&and=max',
+                    'screen_name'    => 'mock_screen_name',
+                    'sex'            => 2,
+                ],
+                [
+                    'uid'            => 23456,
+                    'bdate'          => '12.07.1988',
+                    'city'           => [
+                        'id'    => 422,
+                        'title' => 'mock_city_title_2',
+                    ],
+                    'country'        => [
+                        'id'    => 4212,
+                        'title' => 'UK',
+                    ],
+                    'domain'         => 'id23456',
+                    'first_name'     => 'mock_first_name_2',
+                    'friend_status'  => 0,
+                    'has_photo'      => 1,
+                    'home_town'      => 'mock_home_town_2',
+                    'is_friend'      => 0,
+                    'last_name'      => 'mock_last_name_2',
+                    'maiden_name'    => 'mock_maiden_name_2',
+                    'nickname'       => 'mock_nickname_2',
+                    'photo_max'      => 'http::/example.com/mock/image/url2.jpg?with=parameters&and=square',
+                    'photo_max_orig' => 'http::/example.com/mock/image/url2.jpg?with=parameters&and=max',
+                    'screen_name'    => 'mock_screen_name_2',
+                    'sex'            => 1,
+                ],
+            ],
+        ]);
+    }
+    /**
+     * @return string JSON
+     */
+    protected function getMockErrorFlat()
+    {
+        return json_encode([
+            'error'             => 'mock_error_message',
+            'error_description' => 'mock_error_description',
+        ]);
+    }
+    /**
+     * @return string JSON
+     */
+    protected function getMockErrorTree()
+    {
+        return json_encode([
+            'error' => [
+                'error_code' => 123,
+                'error_msg'  => 'mock_error_message',
+            ],
+        ]);
     }
 
     public function testAuthorizationUrl()
@@ -45,7 +188,6 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
         static::assertArrayHasKey('approval_prompt', $query);
         static::assertNotNull($this->provider->getState());
     }
-
     public function testUrlAccessToken()
     {
         $url = $this->provider->getBaseAccessTokenUrl([]);
@@ -53,65 +195,98 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
 
         static::assertEquals('/access_token', $uri['path']);
     }
-
-    public function testGetAccessToken()
-    {
-        /**
-         * @type Client|\Mockery\Mock $client
-         * @type Response|\Mockery\Mock $response
-         * @type AccessToken $token
-         */
-
-        $response = m::mock(new Response);
-        $response->shouldReceive('getBody')->times(1)->andReturn('{"access_token": "mock_access_token", "expires": 3600, "refresh_token": "mock_refresh_token", "uid": 1, "email": "mock_email"}');
-
-        $client = m::mock(new Client);
-        $client->shouldReceive('setBaseUrl')->times(1);
-        $client->shouldReceive('post->send')->times(1)->andReturn($response);
-        $this->provider->setHttpClient($client);
-
-        $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
-
-        static::assertEquals('mock_access_token', $token->getToken());
-        static::assertLessThanOrEqual(time() + 3600, $token->getExpires());
-        static::assertGreaterThanOrEqual(time(), $token->getExpires());
-        static::assertEquals('mock_refresh_token', $token->getRefreshToken());
-        static::assertEquals('1', $token->uid);
-        static::assertEquals('mock_email', $token->email);
-    }
-
     public function testScopes()
     {
-        static::assertEquals(['email'], $this->provider->scopes);
+        static::assertEquals($this->defaultScopes, $this->provider->scopes);
     }
 
-    public function testUserData()
+    /**
+     * @todo Do we need this? Provider::getAccessToken() not used in project.
+     */
+    public function testGetAccessToken()
     {
-        /**
-         * @type Client|\Mockery\Mock $client
-         * @type Response|\Mockery\Mock $postResponse
-         * @type Response|\Mockery\Mock $getResponse
-         */
+    //    /**
+    //     * @type Client|\Mockery\Mock   $client
+    //     * @type Response|\Mockery\Mock $response
+    //     * @type AccessToken            $token
+    //     */
+    //
+    //    $response = m::mock(Response::class);
+    //    $response->shouldReceive('getBody')->times(1)->andReturn($this->getMockAccessToken());
+    //
+    //    $client = m::mock(Client::class);
+    //    $client->shouldReceive('setBaseUrl');
+    //    $client->shouldReceive('post->send')->times(1)->andReturn($response);
+    //    $this->provider->setHttpClient($client);
+    //
+    //    $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
+    //
+    //    static::assertEquals('mock_access_token', $token->getToken());
+    //    static::assertLessThanOrEqual(time() + 3600, $token->getExpires());
+    //    static::assertEquals('mock_refresh_token', $token->getRefreshToken());
+    //    static::assertEquals(12345, $token->getValues()['user_id']);
+    //    static::assertEquals('mock_user@example.com', $token->getValues()['email']);
+    }
+    public function testUsersGet()
+    {
+    //    $response = m::mock(Response::class);
+    //    $response->shouldReceive('getBody')->times(2)->andReturn($this->getMockUsers());
+    //    $response->shouldReceive('getHeader')->times(2)->andReturn(['Content-Type' => 'application/json; encoding=utf-8']);
+    //    $response->shouldReceive('getStatusCode')->times(2)->andReturn(200);
+    //    $response->shouldReceive('getReasonPhrase')->times(2)->andReturn('OK');
+    //
+    //    $provider  = $this->getMockProvider();
+    //    $user12345 = new User(json_decode($this->getMockUsers(), true)['response'][0]);
+    //    $user23456 = new User(json_decode($this->getMockUsers(), true)['response'][1]);
+    //
+    //    static::assertEquals([$user12345, $user23456], $provider->usersGet([12345, 23456]));
+    }
 
-        $postResponse = m::mock(new Response);
-        $postResponse->shouldReceive('getBody')->times(1)->andReturn('{"access_token": "mock_access_token", "expires": 3600, "refresh_token": "mock_refresh_token", "uid": 1, "email": "mock_email"}');
+    public function testCheckResponseSuccess()
+    {
+        $response = m::mock(Response::class);
+        $response->shouldReceive('getBody')->andReturn($this->getMockOwner());
+        $response->shouldReceive('getHeader')->andReturn(['Content-Type' => 'application/json; encoding=utf-8']);
+        $response->shouldReceive('getStatusCode')->andReturn(200);
+        $response->shouldReceive('getReasonPhrase')->andReturn('OK');
 
-        $getResponse = m::mock(new Response);
-        $getResponse->shouldReceive('getBody')->times(4)->andReturn('{"response": [{"uid": 12345, "nickname": "mock_nickname", "screen_name": "mock_name", "first_name": "mock_first_name", "last_name": "mock_last_name", "country": "UK", "status": "mock_status", "photo_200_orig": "mock_image_url"}]}');
+        $provider      = $this->getMockProvider();
+        $reflection    = new \ReflectionClass(get_class($provider));
+        $checkResponse = $reflection->getMethod('checkResponse');
+        $checkResponse->setAccessible(true);
 
-        $client = m::mock(new Client);
-        $client->shouldReceive('setBaseUrl')->times(5);
-        $client->shouldReceive('post->send')->times(1)->andReturn($postResponse);
-        $client->shouldReceive('get->send')->times(4)->andReturn($getResponse);
-        $this->provider->setHttpClient($client);
+        static::assertNull($checkResponse->invokeArgs($provider, [$response, []]));
+    }
+    public function testCheckResponseErrorFlat()
+    {
+        $response      = m::mock(Response::class);
+        $response->shouldReceive('getHeader')->andReturn(['Content-Type' => 'application/json; encoding=utf-8']);
+        $response->shouldReceive('getStatusCode')->andReturn(200);
+        $response->shouldReceive('getReasonPhrase')->andReturn('OK');
 
-        $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
-        /** @type User $user */
-        $user = $this->provider->getResourceOwner($token);
+        $provider      = $this->getMockProvider();
+        $reflection    = new \ReflectionClass(get_class($provider));
+        $checkResponse = $reflection->getMethod('checkResponse');
+        $checkResponse->setAccessible(true);
 
-        static::assertEquals(12345, $this->provider->userUid($getResponse, $token));
-        static::assertEquals(['mock_first_name', 'mock_last_name'], $this->provider->userScreenName($getResponse, $token));
-        static::assertEquals('mock_email', $this->provider->userEmail($getResponse, $token));
-        static::assertEquals('mock_email', $user->email);
+        $response->shouldReceive('getBody')->andReturn($this->getMockErrorFlat());
+        $this->setExpectedException(IdentityProviderException::class, 'mock_error_description');
+        $checkResponse->invokeArgs($provider, [$response, json_decode($this->getMockErrorFlat(), true)]);
+    }
+    public function testCheckResponseErrorTree()
+    {
+        $response      = m::mock(Response::class);
+        $response->shouldReceive('getHeader')->andReturn(['Content-Type' => 'application/json; encoding=utf-8']);
+        $response->shouldReceive('getStatusCode')->andReturn(200);
+        $response->shouldReceive('getReasonPhrase')->andReturn('OK');
+
+        $provider      = $this->getMockProvider();
+        $reflection    = new \ReflectionClass(get_class($provider));
+        $checkResponse = $reflection->getMethod('checkResponse');
+        $checkResponse->setAccessible(true);
+
+        $response->shouldReceive('getBody')->andReturn($this->getMockErrorTree());
+        $this->setExpectedException(IdentityProviderException::class, 'mock_error_message', 123);
+        $checkResponse->invokeArgs($provider, [$response, json_decode($this->getMockErrorTree(), true)]);
     }
 }
