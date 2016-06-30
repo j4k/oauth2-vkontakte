@@ -28,21 +28,22 @@ $provider = new J4k\OAuth2\Client\Provider\Vkontakte([
 ```php
 // Authorize if needed
 if (PHP_SESSION_NONE === session_status()) session_start();
-$code         = !empty($_GET['code'])  ? $_GET['code']  : null;
-$state        = !empty($_GET['state']) ? $_GET['state'] : null;
-$sessionState = 'oauth2state';
+$isSessionActive = PHP_SESSION_ACTIVE === session_status();
+$code            = !empty($_GET['code'])  ? $_GET['code']  : null;
+$state           = !empty($_GET['state']) ? $_GET['state'] : null;
+$sessionState    = 'oauth2state';
 
 // No code – get some
 if (!$code) {
     $authUrl = $provider->getAuthorizationUrl();
-    if (PHP_SESSION_ACTIVE === session_status()) $_SESSION[$sessionState] = $provider->getState();
+    if ($isSessionActive) $_SESSION[$sessionState] = $provider->getState();
     // Redirect user to VK
     header("Location: $authUrl");
     die();
 }
 
 // Anti-CSRF
-elseif (empty($state) || ($state !== $_SESSION[$sessionState])) {
+elseif ($isSessionActive && (empty($state) || ($state !== $_SESSION[$sessionState]))) {
     unset($_SESSION[$sessionState]);
     throw new \RuntimeException('Invalid state');
 }
