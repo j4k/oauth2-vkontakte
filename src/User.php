@@ -59,13 +59,6 @@ class User implements ResourceOwnerInterface
     // ========== Getters for default scope ==========
 
     /**
-     * @return string|null
-     */
-    public function getAbout()
-    {
-        return $this->getField('about');
-    }
-    /**
      * @return string|null DD.MM.YYYY
      */
     public function getBirthday()
@@ -73,48 +66,11 @@ class User implements ResourceOwnerInterface
         return $this->getField('bdate');
     }
     /**
-     * Detects is current user can post on wall of this user
-     *
-     * @return bool
-     */
-    public function isCanPost()
-    {
-        return (bool)$this->getField('can_post');
-    }
-    /**
      * @return array [id =>, title => string]
      */
     public function getCity()
     {
         return $this->getField('city');
-    }
-    /**
-     * Info about phone numbers
-     *
-     * @return array [mobile_phone = string, home_phone => string]
-     */
-    public function getContacts()
-    {
-        return $this->getField('contacts');
-    }
-    /**
-     * @return array [
-     *     albums         => int,
-     *     videos         => int,
-     *     audios         => int,
-     *     notes          => int,
-     *     photos         => int,
-     *     groups         => int,
-     *     gifts          => int,
-     *     friends        => int,
-     *     online_friends => int,
-     *     user_videos    => int,
-     *     followers      => int,
-     * ]
-     */
-    public function getCounters()
-    {
-        return $this->getField('counters');
     }
     /**
      * @return array [id =>, title => string]
@@ -145,15 +101,6 @@ class User implements ResourceOwnerInterface
     public function getFriendStatus()
     {
         return $this->getField('friend_Status');
-    }
-    /**
-     * Do we know mobile phone number
-     *
-     * @return bool
-     */
-    public function isHasMobile()
-    {
-        return (bool)$this->getField('has_mobile');
     }
     /**
      * Has user avatar?
@@ -232,12 +179,5 @@ class User implements ResourceOwnerInterface
     public function getSex()
     {
         return $this->getField('sex');
-    }
-    /**
-     * @return int
-     */
-    public function getTimezone()
-    {
-        return $this->getField('timezone');
     }
 }
