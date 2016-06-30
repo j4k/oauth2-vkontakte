@@ -113,6 +113,8 @@ class Vkontakte extends AbstractProvider
         //'wall_comments',
     ];
 
+    // ========== Abstract ==========
+
     public function getBaseAuthorizationUrl()
     {
         return "$this->baseOAuthUri/authorize";
@@ -121,6 +123,60 @@ class Vkontakte extends AbstractProvider
     {
         return "$this->baseOAuthUri/access_token";
     }
+    public function getResourceOwnerDetailsUrl(AccessToken $token)
+    {
+        $params = [
+            'fields'       => $this->userFields,
+            'access_token' => $token->getToken(),
+            'v'            => $this->version,
+        ];
+        $query  = $this->buildQueryString($params);
+        $url    = "$this->baseUri/users.get?$query";
+
+        return $url;
+    }
+    protected function getDefaultScopes()
+    {
+        return $this->scopes;
+    }
+    protected function checkResponse(ResponseInterface $response, $data)
+    {
+        // Metadata info
+        $contentType = $response->getHeader('Content-Type');
+        /** @noinspection PhpPassByRefInspection */
+        $contentType = reset((explode(';', reset($contentType))));
+        // Response info
+        $responseCode    = $response->getStatusCode();
+        $responseMessage = $response->getReasonPhrase();
+        // Data info
+        $error            = !empty($data['error']) ? $data['error'] : null;
+        $errorCode        = !empty($error['error_code']) ? $error['error_code'] : $responseCode;
+        $errorDescription = !empty($data['error_description']) ? $data['error_description'] : null;
+        $errorMessage     = !empty($error['error_msg']) ? $error['error_msg'] : $errorDescription;
+        $message          = $errorMessage ?: $responseMessage;
+
+        // Request/meta validation
+        if (399 < $responseCode)
+            throw new IdentityProviderException($message, $responseCode, $data);
+
+        // Content validation
+        if ('application/json' != $contentType)
+            throw new IdentityProviderException($message, $responseCode, $data);
+        if ($error)
+            throw new IdentityProviderException($errorMessage, $errorCode, $data);
+    }
+    protected function createResourceOwner(array $response, AccessToken $token)
+    {
+        $response          = reset($response['response']);
+        $additional        = $token->getValues();
+        $response['email'] = !empty($additional['email']) ? $additional['email'] : null;
+        $response['id']    = !empty($additional['user_id']) ? $additional['user_id'] : null;
+
+        return new User($response, $response['id']);
+    }
+
+    // ========== Helpers ==========
+
     public function getAccessToken($grant = 'authorization_code', array $params = [])
     {
         if (is_string($grant)) {
@@ -196,32 +252,4 @@ class Vkontakte extends AbstractProvider
         }
         return $accessToken;
     }
-    public function getResourceOwnerDetailsUrl(AccessToken $token)
-    {
-        $params = [
-            'fields'       => $this->userFields,
-            'access_token' => $token->getToken(),
-            'v'            => $this->version,
-        ];
-        $query  = $this->buildQueryString($params);
-        $url    = "$this->baseUri/users.get?$query";
-
-        return $url;
-    }
-
-    protected function createResourceOwner(array $response, AccessToken $token)
-    {
-        $response          = reset($response['response']);
-        $additional        = $token->getValues();
-        $response['email'] = !empty($additional['email']) ? $additional['email'] : null;
-        $response['id']    = !empty($additional['user_id']) ? $additional['user_id'] : null;
-
-        return new User($response, $response['id']);
-    }
-
-    protected function getDefaultScopes()
-    {
-        return $this->scopes;
-    }
-    protected function checkResponse(ResponseInterface $response, $data) { parent::checkResponse($response, $data); }
 }
