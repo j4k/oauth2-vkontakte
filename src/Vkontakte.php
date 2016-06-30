@@ -11,15 +11,115 @@ use Psr\Http\Message\ResponseInterface;
 
 class Vkontakte extends AbstractProvider
 {
-    public $scopes = ['email'];
+    protected $baseOAuthUri = 'https://oauth.vk.com';
+    protected $baseUri      = 'https://api.vk.com/method';
+    protected $version      = '5.52';
+
+    /**
+     * @type array
+     * @see https://vk.com/dev/permissions
+     */
+    public $scopes = [
+        'email',
+        'friends',
+        'offline',
+        'photos',
+        'wall',
+        //'ads',
+        //'audio',
+        //'docs',
+        //'groups',
+        //'market',
+        //'messages',
+        //'nohttps',
+        //'notes',
+        //'notifications',
+        //'notify',
+        //'pages',
+        //'stats',
+        //'status',
+        //'video',
+    ];
+    /**
+     * @type array
+     * @see https://new.vk.com/dev/fields
+     */
+    public $userFields = [
+        'about',
+        'bdate',
+        'can_post',
+        'city',
+        'contacts',
+        'counters',
+        'country',
+        'domain',
+        'first_name',
+        'friend_status',
+        'has_mobile',
+        'has_photo',
+        'home_town',
+        'id',
+        'is_friend',
+        'last_name',
+        'maiden_name',
+        'nickname',
+        'photo_max',
+        'photo_max_orig',
+        'screen_name',
+        'sex',
+        'timezone',
+        //'activities',
+        //'blacklisted',
+        //'blacklisted_by_me',
+        //'books',
+        //'can_see_all_posts',
+        //'can_see_audio',
+        //'can_send_friend_request',
+        //'can_write_private_message',
+        //'career',
+        //'common_count',
+        //'connections',
+        //'crop_photo',
+        //'deactivated',
+        //'education',
+        //'exports',
+        //'followers_count',
+        //'games',
+        //'hidden',
+        //'interests',
+        //'is_favorite',
+        //'is_hidden_from_feed',
+        //'last_seen',
+        //'military',
+        //'movies',
+        //'occupation',
+        //'online',
+        //'personal',
+        //'photo_100',
+        //'photo_200',
+        //'photo_200_orig',
+        //'photo_400_orig',
+        //'photo_50',
+        //'photo_id',
+        //'quotes',
+        //'relation',
+        //'relatives',
+        //'schools',
+        //'site',
+        //'status',
+        //'tv',
+        //'universities',
+        //'verified',
+        //'wall_comments',
+    ];
 
     public function getBaseAuthorizationUrl()
     {
-        return 'https://oauth.vk.com/authorize';
+        return "$this->baseOAuthUri/authorize";
     }
     public function getBaseAccessTokenUrl(array $params)
     {
-        return 'https://oauth.vk.com/access_token';
+        return "$this->baseOAuthUri/access_token";
     }
     public function getAccessToken($grant = 'authorization_code', array $params = [])
     {
@@ -98,35 +198,15 @@ class Vkontakte extends AbstractProvider
     }
     public function getResourceOwnerDetailsUrl(AccessToken $token)
     {
-        $fields = ['email',
-            'nickname',
-            'screen_name',
-            'sex',
-            'bdate',
-            'city',
-            'country',
-            'timezone',
-            'photo_50',
-            'photo_100',
-            'photo_200_orig',
-            'has_mobile',
-            'contacts',
-            'education',
-            'online',
-            'counters',
-            'relation',
-            'last_seen',
-            'status',
-            'can_write_private_message',
-            'can_see_all_posts',
-            'can_see_audio',
-            'can_post',
-            'universities',
-            'schools',
-            'verified', ];
+        $params = [
+            'fields'       => $this->userFields,
+            'access_token' => $token->getToken(),
+            'v'            => $this->version,
+        ];
+        $query  = $this->buildQueryString($params);
+        $url    = "$this->baseUri/users.get?$query";
 
-        return "https://api.vk.com/method/users.get?user_id={$token->uid}&fields="
-            .implode(",", $fields)."&access_token={$token}";
+        return $url;
     }
 
     protected function createResourceOwner(array $response, AccessToken $token)
@@ -156,6 +236,9 @@ class Vkontakte extends AbstractProvider
         return [$response->first_name, $response->last_name];
     }
 
-    protected function getDefaultScopes() { return $this->scopes; }
+    protected function getDefaultScopes()
+    {
+        return $this->scopes;
+    }
     protected function checkResponse(ResponseInterface $response, $data) { parent::checkResponse($response, $data); }
 }
