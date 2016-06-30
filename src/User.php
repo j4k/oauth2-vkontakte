@@ -41,4 +41,203 @@ class User implements ResourceOwnerInterface
     {
         return (int)$this->response['uid'];
     }
+
+    // ========== helpers ==========
+
+    /**
+     * Helper for getting user data
+     *
+     * @param string $key
+     *
+     * @return mixed|null
+     */
+    protected function getField($key)
+    {
+        return !empty($this->response[$key]) ? $this->response[$key] : null;
+    }
+
+    // ========== Getters for default scope ==========
+
+    /**
+     * @return string|null
+     */
+    public function getAbout()
+    {
+        return $this->getField('about');
+    }
+    /**
+     * @return string|null DD.MM.YYYY
+     */
+    public function getBirthday()
+    {
+        return $this->getField('bdate');
+    }
+    /**
+     * Detects is current user can post on wall of this user
+     *
+     * @return bool
+     */
+    public function isCanPost()
+    {
+        return (bool)$this->getField('can_post');
+    }
+    /**
+     * @return array [id =>, title => string]
+     */
+    public function getCity()
+    {
+        return $this->getField('city');
+    }
+    /**
+     * Info about phone numbers
+     *
+     * @return array [mobile_phone = string, home_phone => string]
+     */
+    public function getContacts()
+    {
+        return $this->getField('contacts');
+    }
+    /**
+     * @return array [
+     *     albums         => int,
+     *     videos         => int,
+     *     audios         => int,
+     *     notes          => int,
+     *     photos         => int,
+     *     groups         => int,
+     *     gifts          => int,
+     *     friends        => int,
+     *     online_friends => int,
+     *     user_videos    => int,
+     *     followers      => int,
+     * ]
+     */
+    public function getCounters()
+    {
+        return $this->getField('counters');
+    }
+    /**
+     * @return array [id =>, title => string]
+     */
+    public function getCountry()
+    {
+        return $this->getField('country');
+    }
+    /**
+     * Short address to user page
+     *
+     * @return string
+     */
+    public function getDomain()
+    {
+        return $this->getField('domain');
+    }
+    /**
+     * @return string
+     */
+    public function getFirstName()
+    {
+        return $this->getField('first_name');
+    }
+    /**
+     * @return int 0|1|2|3 => nobody|resquest_sent|incoming_request|friends
+     */
+    public function getFriendStatus()
+    {
+        return $this->getField('friend_Status');
+    }
+    /**
+     * Do we know mobile phone number
+     *
+     * @return bool
+     */
+    public function isHasMobile()
+    {
+        return (bool)$this->getField('has_mobile');
+    }
+    /**
+     * Has user avatar?
+     *
+     * @return bool
+     */
+    public function isHasPhoto()
+    {
+        return (bool)$this->getField('has_photo');
+    }
+    /**
+     * @return string
+     */
+    public function getHomeTown()
+    {
+        return $this->getField('home_town');
+    }
+    /**
+     * Detect if current user is freind to this
+     *
+     * @return bool
+     */
+    public function isFriend()
+    {
+        return (bool)$this->getField('is_friend');
+    }
+    /**
+     * @return string
+     */
+    public function getLastName()
+    {
+        return $this->getField('last_name');
+    }
+    /**
+     * @return string
+     */
+    public function getMaidenName()
+    {
+        return $this->getField('maiden_name');
+    }
+    /**
+     * @return string
+     */
+    public function getNickname()
+    {
+        return $this->getField('nickname');
+    }
+    /**
+     * It's square!
+     *
+     * @return string URL
+     */
+    public function getPhotoMax()
+    {
+        return $this->getField('photo_max');
+    }
+    /**
+     * Any sizes
+     *
+     * @return string URL
+     */
+    public function getPhotoMaxOrig()
+    {
+        return $this->getField('photo_max_orig');
+    }
+    /**
+     * @return string
+     */
+    public function getScreenName()
+    {
+        return $this->getField('screen_name');
+    }
+    /**
+     * @return int 1|2 => woman|man
+     */
+    public function getSex()
+    {
+        return $this->getField('sex');
+    }
+    /**
+     * @return int
+     */
+    public function getTimezone()
+    {
+        return $this->getField('timezone');
+    }
 }
