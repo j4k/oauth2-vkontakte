@@ -12,8 +12,6 @@ use Psr\Http\Message\ResponseInterface;
 class Vkontakte extends AbstractProvider
 {
     public $scopes = ['email'];
-    public $uidKey = 'user_id';
-    public $responseType = 'json';
 
     public function getBaseAuthorizationUrl()
     {
@@ -76,18 +74,10 @@ class Vkontakte extends AbstractProvider
         }
         $responseBody = $response->getBody()->getContents();
 
-        switch ($this->responseType) {
-            case 'json':
-                $result = json_decode($responseBody, true);
+        $result = json_decode($responseBody, true);
 
-                if (JSON_ERROR_NONE !== json_last_error()) {
-                    $result = [];
-                }
-
-                break;
-            case 'string':
-                parse_str($responseBody, $result);
-                break;
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            $result = [];
         }
 
         if (isset($result['error']) && ! empty($result['error'])) {
