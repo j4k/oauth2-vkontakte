@@ -2,11 +2,43 @@
 
 namespace J4k\OAuth2\Client\Provider;
 
-use League\OAuth2\Client\Provider\GenericResourceOwner;
+use League\OAuth2\Client\Provider\ResourceOwnerInterface;
 
-class User extends GenericResourceOwner
+/**
+ * @see     https://vk.com/dev/fields
+ *
+ * @package J4k\OAuth2\Client\Provider
+ */
+class User implements ResourceOwnerInterface
 {
-    public $email;
-    public $location;
-    public $description;
+    // ========== Interface ==========
+
+    /**
+     * @type array
+     */
+    protected $response;
+
+    /**
+     * User constructor.
+     *
+     * @param array $response
+     */
+    public function __construct(array $response)
+    {
+        $this->response = $response;
+    }
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return $this->response;
+    }
+    /**
+     * @return integer
+     */
+    public function getId()
+    {
+        return (int)$this->response['uid'];
+    }
 }
