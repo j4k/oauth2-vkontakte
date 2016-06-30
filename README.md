@@ -72,14 +72,14 @@ else {
 ### Public
 ```php
 $provider->usersGet([1234, 56789]); // => \J4k\OAuth2\Client\Provider\User[]
-$provider->fiendsGet(23456);        // => \J4k\OAuth2\Client\Provider\User[]
+$provider->friendsGet(23456);        // => \J4k\OAuth2\Client\Provider\User[]
 ```
 
 ### With additional data
 ```php
 $providerAccessToken = new \League\OAuth2\Client\Token\AccessToken(['access_token' => 'iAmAccessTokenString']);
 $provider->usersGet([1234, 56789], $providerAccessToken); // => \J4k\OAuth2\Client\Provider\User[]
-$provider->fiendsGet(23456, $providerAccessToken);        // => \J4k\OAuth2\Client\Provider\User[]
+$provider->friendsGet(23456, $providerAccessToken);        // => \J4k\OAuth2\Client\Provider\User[]
 ```
 
 ## Contributions
