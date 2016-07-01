@@ -111,8 +111,6 @@ class Vkontakte extends AbstractProvider
         //'wall_comments',
     ];
 
-    // ========== Abstract ==========
-
     public function getBaseAuthorizationUrl()
     {
         return "$this->baseOAuthUri/authorize";
@@ -173,8 +171,6 @@ class Vkontakte extends AbstractProvider
         return new User($response, $response['id']);
     }
 
-    // ========== API methods ==========
-
     /**
      * @see https://vk.com/dev/users.get
      *
@@ -228,7 +224,11 @@ class Vkontakte extends AbstractProvider
 
         $response     = $this->getResponse($this->createRequest(static::METHOD_GET, $url, $token, []))['response'];
         $friends      = !empty($response['items']) ? $response['items'] : $response;
-        $array2friend = function ($friendData) { return new User($friendData); };
+        $array2friend = function ($friendData) {
+            if (is_numeric($friendData)) $friendData = ['id' => $friendData];
+
+            return new User($friendData);
+        };
 
         return array_map($array2friend, $friends);
     }
