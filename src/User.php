@@ -39,7 +39,7 @@ class User implements ResourceOwnerInterface
      */
     public function getId()
     {
-        return (int)$this->response['uid'];
+        return (int)($this->getField('uid') ?: $this->getField('id'));
     }
 
     // ========== helpers ==========
