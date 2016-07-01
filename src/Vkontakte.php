@@ -165,10 +165,10 @@ class Vkontakte extends AbstractProvider
     }
     protected function createResourceOwner(array $response, AccessToken $token)
     {
-        $response          = reset($response['response']);
-        $additional        = $token->getValues();
-        $response['email'] = !empty($additional['email']) ? $additional['email'] : null;
-        $response['id']    = !empty($additional['user_id']) ? $additional['user_id'] : null;
+        $response   = reset($response['response']);
+        $additional = $token->getValues();
+        if (!empty($additional['email'])) $response['email'] = $additional['email'];
+        if (!empty($additional['user_id'])) $response['id'] = $additional['user_id'];
 
         return new User($response, $response['id']);
     }
