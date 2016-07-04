@@ -3,7 +3,6 @@
 namespace J4k\OAuth2\Client\Test\Provider;
 
 use GuzzleHttp\Psr7\Response;
-use J4k\OAuth2\Client\Provider\User;
 use J4k\OAuth2\Client\Provider\Vkontakte as Provider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
 use Mockery as m;
@@ -198,48 +197,6 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
     public function testScopes()
     {
         static::assertEquals($this->defaultScopes, $this->provider->scopes);
-    }
-
-    /**
-     * @todo Do we need this? Provider::getAccessToken() not used in project.
-     */
-    public function testGetAccessToken()
-    {
-    //    /**
-    //     * @type Client|\Mockery\Mock   $client
-    //     * @type Response|\Mockery\Mock $response
-    //     * @type AccessToken            $token
-    //     */
-    //
-    //    $response = m::mock(Response::class);
-    //    $response->shouldReceive('getBody')->times(1)->andReturn($this->getMockAccessToken());
-    //
-    //    $client = m::mock(Client::class);
-    //    $client->shouldReceive('setBaseUrl');
-    //    $client->shouldReceive('post->send')->times(1)->andReturn($response);
-    //    $this->provider->setHttpClient($client);
-    //
-    //    $token = $this->provider->getAccessToken('authorization_code', ['code' => 'mock_authorization_code']);
-    //
-    //    static::assertEquals('mock_access_token', $token->getToken());
-    //    static::assertLessThanOrEqual(time() + 3600, $token->getExpires());
-    //    static::assertEquals('mock_refresh_token', $token->getRefreshToken());
-    //    static::assertEquals(12345, $token->getValues()['user_id']);
-    //    static::assertEquals('mock_user@example.com', $token->getValues()['email']);
-    }
-    public function testUsersGet()
-    {
-    //    $response = m::mock(Response::class);
-    //    $response->shouldReceive('getBody')->times(2)->andReturn($this->getMockUsers());
-    //    $response->shouldReceive('getHeader')->times(2)->andReturn(['Content-Type' => 'application/json; encoding=utf-8']);
-    //    $response->shouldReceive('getStatusCode')->times(2)->andReturn(200);
-    //    $response->shouldReceive('getReasonPhrase')->times(2)->andReturn('OK');
-    //
-    //    $provider  = $this->getMockProvider();
-    //    $user12345 = new User(json_decode($this->getMockUsers(), true)['response'][0]);
-    //    $user23456 = new User(json_decode($this->getMockUsers(), true)['response'][1]);
-    //
-    //    static::assertEquals([$user12345, $user23456], $provider->usersGet([12345, 23456]));
     }
 
     public function testCheckResponseSuccess()
