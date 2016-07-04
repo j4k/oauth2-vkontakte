@@ -11,8 +11,6 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
  */
 class User implements ResourceOwnerInterface
 {
-    // ========== Interface ==========
-
     /**
      * @type array
      */
@@ -42,8 +40,6 @@ class User implements ResourceOwnerInterface
         return (int)($this->getField('uid') ?: $this->getField('id'));
     }
 
-    // ========== helpers ==========
-
     /**
      * Helper for getting user data
      *
@@ -55,8 +51,6 @@ class User implements ResourceOwnerInterface
     {
         return !empty($this->response[$key]) ? $this->response[$key] : null;
     }
-
-    // ========== Getters for default scope ==========
 
     /**
      * @return string|null DD.MM.YYYY

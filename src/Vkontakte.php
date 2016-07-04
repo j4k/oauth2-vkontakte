@@ -111,8 +111,6 @@ class Vkontakte extends AbstractProvider
         //'wall_comments',
     ];
 
-    // ========== Abstract ==========
-
     public function getBaseAuthorizationUrl()
     {
         return "$this->baseOAuthUri/authorize";
@@ -172,8 +170,6 @@ class Vkontakte extends AbstractProvider
 
         return new User($response, $response['id']);
     }
-
-    // ========== API methods ==========
 
     /**
      * @see https://vk.com/dev/users.get
