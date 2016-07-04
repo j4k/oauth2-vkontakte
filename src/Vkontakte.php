@@ -152,21 +152,28 @@ class Vkontakte extends AbstractProvider
         $message          = $errorMessage ?: $responseMessage;
 
         // Request/meta validation
-        if (399 < $responseCode)
+        if (399 < $responseCode) {
             throw new IdentityProviderException($message, $responseCode, $data);
+        }
 
         // Content validation
-        if ('application/json' != $contentType)
+        if ('application/json' != $contentType) {
             throw new IdentityProviderException($message, $responseCode, $data);
-        if ($error)
+        }
+        if ($error) {
             throw new IdentityProviderException($errorMessage, $errorCode, $data);
+        }
     }
     protected function createResourceOwner(array $response, AccessToken $token)
     {
         $response   = reset($response['response']);
         $additional = $token->getValues();
-        if (!empty($additional['email'])) $response['email'] = $additional['email'];
-        if (!empty($additional['user_id'])) $response['id'] = $additional['user_id'];
+        if (!empty($additional['email'])) {
+            $response['email'] = $additional['email'];
+        }
+        if (!empty($additional['user_id'])) {
+            $response['id'] = $additional['user_id'];
+        }
 
         return new User($response, $response['id']);
     }
@@ -182,8 +189,9 @@ class Vkontakte extends AbstractProvider
      */
     public function usersGet(array $ids = [], AccessToken $token = null, array $params = [])
     {
-        if (empty($ids) && !$token)
+        if (empty($ids) && !$token) {
             throw new \InvalidArgumentException('Some of parameters usersIds OR access_token are required');
+        }
 
         $default = [
             'user_ids'     => implode(',', $ids),
@@ -197,7 +205,9 @@ class Vkontakte extends AbstractProvider
 
         $response   = $this->getResponse($this->createRequest(static::METHOD_GET, $url, $token, []))['response'];
         $users      = !empty($response['items']) ? $response['items'] : $response;
-        $array2user = function ($userData) { return new User($userData); };
+        $array2user = function ($userData) {
+            return new User($userData);
+        };
 
         return array_map($array2user, $users);
     }
@@ -225,7 +235,9 @@ class Vkontakte extends AbstractProvider
         $response     = $this->getResponse($this->createRequest(static::METHOD_GET, $url, $token, []))['response'];
         $friends      = !empty($response['items']) ? $response['items'] : $response;
         $array2friend = function ($friendData) {
-            if (is_numeric($friendData)) $friendData = ['id' => $friendData];
+            if (is_numeric($friendData)) {
+                $friendData = ['id' => $friendData];
+            }
 
             return new User($friendData);
         };
