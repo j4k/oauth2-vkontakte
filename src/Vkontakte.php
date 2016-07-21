@@ -171,6 +171,9 @@ class Vkontakte extends AbstractProvider
         if (!empty($additional['email'])) {
             $response['email'] = $additional['email'];
         }
+        if (!empty($response['uid']) && 4 === floor($this->version)) {
+            $response['id'] = $response['uid'];
+        }
         if (!empty($additional['user_id'])) {
             $response['id'] = $additional['user_id'];
         }
