@@ -138,9 +138,9 @@ class Vkontakte extends AbstractProvider
     protected function checkResponse(ResponseInterface $response, $data)
     {
         // Metadata info
-        $contentType = $response->getHeader('Content-Type');
-        /** @noinspection PhpPassByRefInspection */
-        $contentType = reset((explode(';', reset($contentType))));
+        $contentTypeRaw = $response->getHeader('Content-Type');
+        $contentTypeArray = explode(';', reset($contentTypeRaw));
+        $contentType = reset($contentTypeArray);
         // Response info
         $responseCode    = $response->getStatusCode();
         $responseMessage = $response->getReasonPhrase();
