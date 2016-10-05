@@ -12,6 +12,7 @@ class Vkontakte extends AbstractProvider
     protected $baseOAuthUri = 'https://oauth.vk.com';
     protected $baseUri      = 'https://api.vk.com/method';
     protected $version      = '5.52';
+    protected $language     = null;
 
     /**
      * @type array
@@ -111,6 +112,16 @@ class Vkontakte extends AbstractProvider
         //'wall_comments',
     ];
 
+    /**
+     * @param string $language
+     */
+    public function setLanguage($language)
+    {
+        $this->language = (string)$language;
+
+        return $this;
+    }
+
     public function getBaseAuthorizationUrl()
     {
         return "$this->baseOAuthUri/authorize";
@@ -125,6 +136,7 @@ class Vkontakte extends AbstractProvider
             'fields'       => $this->userFields,
             'access_token' => $token->getToken(),
             'v'            => $this->version,
+            'lang'         => $this->language
         ];
         $query  = $this->buildQueryString($params);
         $url    = "$this->baseUri/users.get?$query";
@@ -201,6 +213,7 @@ class Vkontakte extends AbstractProvider
             'fields'       => $this->userFields,
             'access_token' => $token ? $token->getToken() : null,
             'v'            => $this->version,
+            'lang'         => $this->language
         ];
         $params  = array_merge($default, $params);
         $query   = $this->buildQueryString($params);
@@ -230,6 +243,7 @@ class Vkontakte extends AbstractProvider
             'fields'       => $this->userFields,
             'access_token' => $token ? $token->getToken() : null,
             'v'            => $this->version,
+            'lang'         => $this->language
         ];
         $params  = array_merge($default, $params);
         $query   = $this->buildQueryString($params);
