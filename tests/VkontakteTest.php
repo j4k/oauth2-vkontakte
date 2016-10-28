@@ -5,6 +5,7 @@ namespace J4k\OAuth2\Client\Test\Provider;
 use GuzzleHttp\Psr7\Response;
 use J4k\OAuth2\Client\Provider\Vkontakte as Provider;
 use League\OAuth2\Client\Provider\Exception\IdentityProviderException;
+use League\OAuth2\Client\Token\AccessToken;
 use Mockery as m;
 
 class VkontakteTest extends \PHPUnit_Framework_TestCase
@@ -41,6 +42,18 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
             'urlAccessToken'          => 'http://example.com/token',
             'urlResourceOwnerDetails' => 'http://example.com/user',
         ], $options));
+    }
+    /**
+     * @return AccessToken
+     */
+    protected function getMockAccessTokenObject()
+    {
+        return new AccessToken([
+            'access_token'      => 'mock_access_token',
+            'resource_owner_id' => 1,
+            'refresh_token'     => 'mock_refresh_token',
+            'expires'           => 0
+        ]);
     }
     /**
      * @return string JSON
@@ -193,6 +206,24 @@ class VkontakteTest extends \PHPUnit_Framework_TestCase
         $uri = parse_url($url);
 
         static::assertEquals('/access_token', $uri['path']);
+    }
+    public function testResourceOwnerDetailsUrlNotContainLanguage()
+    {
+        $url = $this->provider->getResourceOwnerDetailsUrl($this->getMockAccessTokenObject());
+        $uri = parse_url($url);
+        parse_str($uri['query'], $params);
+
+        static::assertArrayNotHasKey('lang', $params);
+    }
+    public function testResourceOwnerDetailsUrlLanguage()
+    {
+        $this->provider->setLanguage('en');
+        $url = $this->provider->getResourceOwnerDetailsUrl($this->getMockAccessTokenObject());
+        $uri = parse_url($url);
+        parse_str($uri['query'], $params);
+
+        static::assertArrayHasKey('lang', $params);
+        static::assertEquals('en', $params['lang']);
     }
     public function testScopes()
     {
