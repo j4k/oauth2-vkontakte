@@ -1,5 +1,5 @@
 {
-    "name": "brutto/oauth2-vkontakte",
+    "name": "j4k/oauth2-vkontakte",
     "description": "Vkontakte provider for league/oauth2-client",
     "keywords": [
         "league",
