@@ -9,7 +9,7 @@ use League\OAuth2\Client\Provider\ResourceOwnerInterface;
  *
  * @package J4k\OAuth2\Client\Provider
  */
-class User implements ResourceOwnerInterface
+class VkontakteUser implements ResourceOwnerInterface
 {
     /**
      * @type array

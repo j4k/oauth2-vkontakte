@@ -19,7 +19,7 @@ $provider = new J4k\OAuth2\Client\Provider\Vkontakte([
     'clientId'     => '1234567',
     'clientSecret' => 's0meRe4lLySEcRetC0De',
     'redirectUri'  => 'https://example.org/oauth-endpoint',
-    'scopes'       => ['email', 'offline', 'friends'],
+    'scope'       => ['email', 'offline', 'friends'],
 ]);
 ```
 
