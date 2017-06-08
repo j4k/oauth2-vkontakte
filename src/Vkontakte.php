@@ -190,7 +190,7 @@ class Vkontakte extends AbstractProvider
             $response['id'] = $additional['user_id'];
         }
 
-        return new User($response, $response['id']);
+        return new VkontakteUser($response, $response['id']);
     }
 
     /**
@@ -200,7 +200,7 @@ class Vkontakte extends AbstractProvider
      * @param AccessToken|null $token Current user if empty
      * @param array            $params
      *
-     * @return User[]
+     * @return VkontakteUser[]
      */
     public function usersGet(array $ids = [], AccessToken $token = null, array $params = [])
     {
@@ -222,7 +222,7 @@ class Vkontakte extends AbstractProvider
         $response   = $this->getResponse($this->createRequest(static::METHOD_GET, $url, $token, []))['response'];
         $users      = !empty($response['items']) ? $response['items'] : $response;
         $array2user = function ($userData) {
-            return new User($userData);
+            return new VkontakteUser($userData);
         };
 
         return array_map($array2user, $users);
@@ -234,7 +234,7 @@ class Vkontakte extends AbstractProvider
      * @param AccessToken|null $token
      * @param array            $params
      *
-     * @return User[]
+     * @return VkontakteUser[]
      */
     public function friendsGet($userId, AccessToken $token = null, array $params = [])
     {
@@ -256,7 +256,7 @@ class Vkontakte extends AbstractProvider
                 $friendData = ['id' => $friendData];
             }
 
-            return new User($friendData);
+            return new VkontakteUser($friendData);
         };
 
         return array_map($array2friend, $friends);
