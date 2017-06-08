@@ -11,7 +11,7 @@ class Vkontakte extends AbstractProvider
 {
     protected $baseOAuthUri = 'https://oauth.vk.com';
     protected $baseUri      = 'https://api.vk.com/method';
-    protected $version      = '5.52';
+    protected $version      = '5.63';
     protected $language     = null;
 
     /**
