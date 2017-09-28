@@ -174,4 +174,13 @@ class User implements ResourceOwnerInterface
     {
         return $this->getField('sex');
     }
+    /**
+     * @return string
+     */
+    public function getEmail()
+    {
+        return $this->getField('email');
+    }
+
+    
 }
