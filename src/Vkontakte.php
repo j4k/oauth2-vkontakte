@@ -11,7 +11,7 @@ class Vkontakte extends AbstractProvider
 {
     protected $baseOAuthUri = 'https://oauth.vk.com';
     protected $baseUri      = 'https://api.vk.com/method';
-    protected $version      = '5.52';
+    protected $version      = '5.131';
     protected $language     = null;
 
     /**
@@ -139,9 +139,8 @@ class Vkontakte extends AbstractProvider
             'lang'         => $this->language
         ];
         $query  = $this->buildQueryString($params);
-        $url    = "$this->baseUri/users.get?$query";
 
-        return $url;
+        return "$this->baseUri/users.get?$query";
     }
     protected function getDefaultScopes()
     {
@@ -183,14 +182,12 @@ class Vkontakte extends AbstractProvider
         if (!empty($additional['email'])) {
             $response['email'] = $additional['email'];
         }
-        if (!empty($response['uid']) && 4 === floor($this->version)) {
-            $response['id'] = $response['uid'];
-        }
+
         if (!empty($additional['user_id'])) {
             $response['id'] = $additional['user_id'];
         }
 
-        return new User($response, $response['id']);
+        return new User($response);
     }
 
     /**
@@ -260,5 +257,10 @@ class Vkontakte extends AbstractProvider
         };
 
         return array_map($array2friend, $friends);
+    }
+
+    protected function getAuthorizationParameters(array $options)
+    {
+        return array_merge(parent::getAuthorizationParameters($options), ['v' => $this->version]);
     }
 }
